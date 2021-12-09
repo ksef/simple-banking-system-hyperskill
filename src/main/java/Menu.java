@@ -3,6 +3,7 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 
 public class Menu {
+
     private static boolean loggedIn;
     private static int id;
 

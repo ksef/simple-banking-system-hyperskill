@@ -3,11 +3,11 @@ import org.sqlite.*;
 import java.sql.*;
 
 public class DBConnector {
+
     static String dbName;
     static String url;
     static String cardTableName;
     static SQLiteDataSource dataSource = new SQLiteDataSource();
-
 
     public static void createDatabase(String dbname) {
         dbName = dbname;
@@ -15,7 +15,6 @@ public class DBConnector {
         dataSource.setUrl(url);
         try (Connection con = dataSource.getConnection()) {
             try (Statement statement = con.createStatement()) {
-
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -123,6 +122,7 @@ public class DBConnector {
         }
         return balance;
     }
+
     public static String getNumber(int id) {
         String getBalance = "SELECT * FROM " + cardTableName + " WHERE id = " + id + ";";
         String number = "";
@@ -144,6 +144,7 @@ public class DBConnector {
         }
         return number;
     }
+
     public static void addBalance(int id, int amount) {
         String addBalance = "UPDATE " + cardTableName + " SET balance = balance + " + amount + "  WHERE id = " + id + ";";
         try (Connection conn = DriverManager.getConnection(url);
@@ -168,7 +169,6 @@ public class DBConnector {
 
     public static void delAccount(int id) {
         String del = "DELETE FROM " + cardTableName + " WHERE id = " + id + ";";
-
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(del);
@@ -176,24 +176,4 @@ public class DBConnector {
             System.out.println(e.getMessage());
         }
     }
-
-    public ResultSet makeQuery(String query) {
-        ResultSet res;
-        try (Connection con = DriverManager.getConnection(url)) {
-            try (Statement stmt = con.createStatement()) {
-                res = stmt.executeQuery(query);
-                if (res.next()) {
-                    return res;
-                } else {
-                    return null;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 }

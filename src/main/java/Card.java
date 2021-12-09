@@ -1,24 +1,21 @@
 import java.util.Random;
 
 public class Card {
+
     private final String BIN = "400000";
     private final int accNumber;
     private final int checksum;
 
-
     public Card() {
-
         Random rand = new Random();
         int randAccNumber = 100000000 + rand.nextInt(900000000);
         int check = makeCheckSum(randAccNumber);
-
         while (DBConnector.containCard(BIN + Integer.toString(randAccNumber + check))) {
             randAccNumber = rand.nextInt(999999999);
             check = makeCheckSum(randAccNumber);
         }
         this.accNumber = randAccNumber;
         this.checksum = check;
-
     }
 
     public int getAccNumber() {
@@ -47,6 +44,7 @@ public class Card {
         }
         return check;
     }
+
     public static boolean checkLoon(String cardNumber){
         String tempCardNumber = cardNumber.substring(0,cardNumber.length()-1);
         int  x = Integer.parseInt(cardNumber.substring(cardNumber.length()-1));
