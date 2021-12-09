@@ -2,7 +2,7 @@ import org.sqlite.*;
 
 import java.sql.*;
 
-public class JDBC {
+public class DBConnector {
     static String dbName;
     static String url;
     static String cardTableName;

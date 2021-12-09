@@ -1,5 +1,3 @@
-import org.sqlite.SQLiteDataSource;
-
 import java.util.Random;
 
 public class Card {
@@ -14,7 +12,7 @@ public class Card {
         int randAccNumber = 100000000 + rand.nextInt(900000000);
         int check = makeCheckSum(randAccNumber);
 
-        while (JDBC.containCard(BIN + Integer.toString(randAccNumber + check))) {
+        while (DBConnector.containCard(BIN + Integer.toString(randAccNumber + check))) {
             randAccNumber = rand.nextInt(999999999);
             check = makeCheckSum(randAccNumber);
         }

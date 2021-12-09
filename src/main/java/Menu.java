@@ -19,24 +19,24 @@ public class Menu {
             if (loggedIn) {
                 switch (choose) {
                     case 1:
-                        System.out.println("Balance: " + JDBC.getBalance(id));
+                        System.out.println("Balance: " + DBConnector.getBalance(id));
                         break;
                     case 2:
                         System.out.println("Enter income:");
                         int amount = scanner.nextInt();
-                        JDBC.addBalance(id, amount);
+                        DBConnector.addBalance(id, amount);
                         break;
                     case 3:
                         System.out.println("Enter card number:");
                         String card = scanner.nextLine();
                         card = scanner.nextLine();
-                        if (!card.equals(JDBC.getNumber(id))) {
+                        if (!card.equals(DBConnector.getNumber(id))) {
                             if (Card.checkLoon(card)) {
-                                if (JDBC.containCard(card)) {
+                                if (DBConnector.containCard(card)) {
                                     System.out.println("Enter how much money you want to transfer:");
                                     int amountSend = scanner.nextInt();
-                                    if (amountSend < JDBC.getBalance(id)) {
-                                        JDBC.sendMoney(id, card, amountSend);
+                                    if (amountSend < DBConnector.getBalance(id)) {
+                                        DBConnector.sendMoney(id, card, amountSend);
                                         System.out.println("success");
                                     } else {
                                         System.out.println("Not enough money!");
@@ -54,7 +54,7 @@ public class Menu {
 
                         break;
                     case 4:
-                        JDBC.delAccount(id);
+                        DBConnector.delAccount(id);
                         System.out.println("The account has been closed!");
                         loggedIn = false;
                         id = -1;
