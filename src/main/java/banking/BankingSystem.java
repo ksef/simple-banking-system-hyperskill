@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 import static java.lang.System.exit;
 
-public class Menu {
+public class BankingSystem {
 
     private CardValidator cardValidator;
     private boolean loggedIn;
@@ -17,7 +17,7 @@ public class Menu {
     private Scanner scanner;
 
 
-    public Menu(String url) {
+    public BankingSystem(String url) {
         cardValidator = new CardValidator();
         operations = new Operations(url);
         scanner = new Scanner(System.in);
