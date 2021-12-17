@@ -1,33 +1,32 @@
-package banking.database;
+package banking.dao;
 
-import banking.processing.Account;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import banking.configuration.DBManager;
+import banking.model.Account;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Operations {
+public class AccountDAO {
 
-    private final String url;
-    private final String INSERT_INTO = "INSERT INTO card (number, pin) VALUES (?, ?)";
-    private final String SELECT_CARDNUMBER = "SELECT count(number) FROM card WHERE number = (?)";
-    private final String SELECT_ALL = "Select * FROM card";
-    private final String SELECT_ID = "SELECT id FROM card WHERE number=? AND pin=?";
-    private final String GET_CARD = "SELECT * FROM card WHERE id = ?";
-    private final String UPD_BALANCE = "UPDATE card SET balance = (balance + ?) WHERE id = ?";
-    private final String GET_MONEY = "UPDATE card SET balance = (balance + ?) WHERE number = ?";
-    private final String SEND_MONEY = "UPDATE card SET balance = (balance - ?) WHERE id = ?";
-    private final String DEL_ACC = "DELETE FROM card WHERE id = ?";
+    private final static String INSERT_INTO = "INSERT INTO account (number, pin) VALUES (?, ?)";
+    private final static String SELECT_CARD_NUMBER = "SELECT count(number) FROM account WHERE number = (?)";
+    private final static String SELECT_ALL = "SELECT * FROM account";
+    private final static String SELECT_ID = "SELECT id FROM account WHERE number=? AND pin=?";
+    private final static String GET_CARD = "SELECT * FROM account WHERE id = ?";
+    private final static String UPD_BALANCE = "UPDATE account SET balance = (balance + ?) WHERE id = ?";
+    private final static String GET_MONEY = "UPDATE account SET balance = (balance + ?) WHERE number = ?";
+    private final static String SEND_MONEY = "UPDATE account SET balance = (balance - ?) WHERE id = ?";
+    private final static String DEL_ACC = "DELETE FROM account WHERE id = ?";
+    private DBManager dbManager;
 
-    public Operations(String url) {
-        this.url = url;
+    public AccountDAO(DBManager dbManager) {
+        this.dbManager = dbManager;
     }
 
     public void insertCard(Account account) {
-        try (Connection conn = DriverManager.getConnection(url);
-             PreparedStatement preparedStatement = conn.prepareStatement(INSERT_INTO)) {
+        try (
+             PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(INSERT_INTO)) {
             preparedStatement.setString(1, account.getCard().getNumber());
             preparedStatement.setString(2, account.getCard().getPIN());
             preparedStatement.executeUpdate();
@@ -36,10 +35,10 @@ public class Operations {
         }
     }
 
-    public int getCount() {
+    public int getId() {
         int id = 0;
-        try (Connection conn = DriverManager.getConnection(url);
-             Statement stmt = conn.createStatement()) {
+        try (
+             Statement stmt = dbManager.getConnection().createStatement()) {
 
             ResultSet res = stmt.executeQuery(SELECT_ALL);
             while (res.next()) {
@@ -53,7 +52,7 @@ public class Operations {
 
     public boolean containCard(String cardNumber) {
         ResultSet res;
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(SELECT_CARDNUMBER)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(SELECT_CARD_NUMBER)) {
             preparedStatement.setString(1, cardNumber);
             res = preparedStatement.executeQuery();
             if (res.next()) {
@@ -67,7 +66,7 @@ public class Operations {
 
     public int login(String cardNumber, String PIN) {
         ResultSet res;
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(SELECT_ID)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(SELECT_ID)) {
             preparedStatement.setString(1, cardNumber);
             preparedStatement.setString(2, PIN);
             res = preparedStatement.executeQuery();
@@ -84,7 +83,7 @@ public class Operations {
 
     public int getBalance(int id) {
         int balance = -1;
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(GET_CARD)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_CARD)) {
             preparedStatement.setInt(1, id);
             ResultSet res = preparedStatement.executeQuery();
             assert res != null;
@@ -100,7 +99,7 @@ public class Operations {
 
     public String getNumber(int id) {
         String number = "";
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(GET_CARD)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_CARD)) {
             preparedStatement.setInt(1, id);
             ResultSet res = preparedStatement.executeQuery();
             assert res != null;
@@ -115,7 +114,7 @@ public class Operations {
     }
 
     public void addBalance(int id, int amount) {
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(UPD_BALANCE)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(UPD_BALANCE)) {
             preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, id);
             preparedStatement.executeUpdate();
@@ -124,22 +123,29 @@ public class Operations {
         }
     }
 
-    public void sendMoney(int id, String card, int amountSend) {
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(GET_MONEY);
-             PreparedStatement preparedStatement1 = DriverManager.getConnection(url).prepareStatement(SEND_MONEY)) {
-            preparedStatement.setInt(1, amountSend);
-            preparedStatement.setString(2, card);
+    public void sendMoney(int id, int amountSend) {
+        try (PreparedStatement preparedStatement1 = dbManager.getConnection().prepareStatement(SEND_MONEY)) {
             preparedStatement1.setInt(1, amountSend);
             preparedStatement1.setInt(2, id);
-            preparedStatement.executeUpdate();
             preparedStatement1.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
+    public void getMoney(int amountSend, String card) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_MONEY)) {
+            preparedStatement.setInt(1, amountSend);
+            preparedStatement.setString(2, card);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     public void delAccount(int id) {
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(DEL_ACC)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(DEL_ACC)) {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

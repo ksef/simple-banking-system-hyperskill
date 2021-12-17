@@ -1,51 +1,56 @@
 package banking;
 
-import banking.database.Operations;
-import banking.processing.Account;
-import banking.processing.Card;
-
+import banking.dao.AccountDAO;
+import banking.model.Account;
+import banking.model.Card;
 import java.util.Scanner;
-
 import static java.lang.System.exit;
 
 public class BankingSystem {
 
-    private CardValidator cardValidator;
-    private boolean loggedIn;
     private int id;
-    private Operations operations;
+    private int amountSend;
+    private int choose;
+    private boolean isLogin;
+    private CardValidator cardValidator;
+    private AccountDAO accountDAO;
     private Scanner scanner;
+    private String card;
 
-
-    public BankingSystem(String url) {
+    public BankingSystem(AccountDAO accountDAO) {
         cardValidator = new CardValidator();
-        operations = new Operations(url);
+        this.accountDAO = accountDAO;
         scanner = new Scanner(System.in);
     }
 
-    public void showMenu() {
-        int choose;
-
+    public void showMenu(){
         while (true) {
-            if (loggedIn) {
-                loggedMenu();
-            } else {
-                unloggedMenu();
-            }
-
-            choose = scanner.nextInt();
-            if (loggedIn) {
-                loggedInControl(choose);
-            } else {
-                loggedOutControl(choose);
-            }
+            showMenuInfo();
+            chooseMenu();
         }
     }
 
-    private void loggedOutControl(int choose) {
+    public void showMenuInfo() {
+            if (isLogin) {
+                loggedMenuInfo();
+            } else {
+                unloggedMenuInfo();
+            }
+    }
+
+    public void chooseMenu() {
+            choose = scanner.nextInt();
+            if (isLogin) {
+                loggedMenu(choose);
+            } else {
+                registerMenu(choose);
+            }
+    }
+
+    private void registerMenu(int choose) {
         switch (choose) {
             case 1:
-                createAccountOption();
+                createAccount();
                 break;
             case 2:
                 logInOption();
@@ -59,23 +64,23 @@ public class BankingSystem {
         }
     }
 
-    private void loggedInControl(int choose) {
+    private void loggedMenu(int choose) {
         switch (choose) {
             case 1:
-                System.out.println("Balance: " + operations.getBalance(id));
+                System.out.println("Balance: " + accountDAO.getBalance(id));
                 break;
             case 2:
                 System.out.println("Enter income:");
                 int amount = scanner.nextInt();
-                operations.addBalance(id, amount);
+                accountDAO.addBalance(id, amount);
                 break;
             case 3:
-                transferToOption();
+                transferMoney();
                 break;
             case 4:
-                operations.delAccount(id);
+                accountDAO.delAccount(id);
                 System.out.println("The account has been closed!");
-                loggedIn = false;
+                isLogin = false;
                 id = -1;
                 break;
             case 5:
@@ -89,30 +94,42 @@ public class BankingSystem {
         }
     }
 
-    private void transferToOption() {
+    private void transferMoney() {
         System.out.println("Enter card number:");
-        String card = scanner.next();
+        card = scanner.next();
 
-        if (!card.equals(operations.getNumber(id))) {
-            if (cardValidator.isValidCard(card)) {
-
-                if (operations.containCard(card)) {
-                    System.out.println("Enter how much money you want to transfer:");
-                    int amountSend = scanner.nextInt();
-                    if (amountSend < operations.getBalance(id)) {
-                        operations.sendMoney(id, card, amountSend);
-                        System.out.println("success");
-                    } else {
-                        System.out.println("Not enough money!");
-                    }
-                } else {
-                    System.out.println("Such a card does not exist.");
-                }
-            } else {
-                System.out.println("Probably you made a mistake in the card number. Please try again!");
-            }
+        if (!card.equals(accountDAO.getNumber(id))) {
+            checkValid();
         } else {
             System.out.println("You can't transfer money to the same account!");
+        }
+    }
+
+    private void checkValid() {
+        if (cardValidator.isValidCard(card)) {
+            enterMoneyCount();
+        } else {
+            System.out.println("Probably you made a mistake in the card number. Please try again!");
+        }
+    }
+
+    private void enterMoneyCount() {
+        if (accountDAO.containCard(card)) {
+            System.out.println("Enter how much money you want to transfer:");
+            amountSend = scanner.nextInt();
+            transaction();
+        } else {
+            System.out.println("Such a card does not exist.");
+        }
+    }
+
+    private void transaction() {
+        if (amountSend < accountDAO.getBalance(id)) {
+            accountDAO.sendMoney(id, amountSend);
+            accountDAO.getMoney(amountSend, card);
+            System.out.println("success");
+        } else {
+            System.out.println("Not enough money!");
         }
     }
 
@@ -123,23 +140,23 @@ public class BankingSystem {
         System.out.println("Enter your PIN:");
         String PIN = scanner.next();
 
-        int logId = operations.login(number, PIN);
+        int logId = accountDAO.login(number, PIN);
         if (logId == -1) {
             System.out.println("Wrong card number or PIN");
         } else {
             System.out.println("You have successfully logged in");
-            loggedIn = true;
+            isLogin = true;
             id = logId;
         }
     }
 
-    private void createAccountOption() {
+    private void createAccount() {
         Card card = cardValidator.generate();
         Account account = new Account(
-                operations.getCount() + 1,
+                accountDAO.getId() + 1,
                 card,
                 0);
-        operations.insertCard(account);
+        accountDAO.insertCard(account);
         System.out.println("""
                 Your card has been created
                 Your card number: 
@@ -149,7 +166,7 @@ public class BankingSystem {
                 """.formatted(account.getCard().getNumber(), account.getCard().getPIN()));
     }
 
-    public static void loggedMenu() {
+    public void loggedMenuInfo() {
         System.out.println("""
                 1. Balance
                 2. Add income
@@ -159,7 +176,7 @@ public class BankingSystem {
                 0. Exit""");
     }
 
-    public static void unloggedMenu() {
+    public void unloggedMenuInfo() {
         System.out.println("""
                 1. Create an account
                 2. Log into account

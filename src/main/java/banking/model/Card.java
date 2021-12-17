@@ -1,4 +1,4 @@
-package banking.processing;
+package banking.model;
 
 public class Card {
 

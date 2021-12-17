@@ -1,25 +1,30 @@
-package banking.database;
-
+package banking.configuration;
 
 import org.sqlite.SQLiteDataSource;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class DBConnector {
+public class DBManager {
 
-    private String dbName;
-    private String url;
-    private SQLiteDataSource dataSource = new SQLiteDataSource();
-    private final String CREATE_TABLE = """
-            CREATE TABLE IF NOT EXISTS card
+    private final static String CREATE_TABLE = """
+            CREATE TABLE IF NOT EXISTS account
             (id INTEGER PRIMARY KEY, 
             number TEXT NOT NULL, 
             pin TEXT NOT NULL, 
             balance INTEGER DEFAULT 0)""";
+    private String dbName;
+    private String url;
+    private SQLiteDataSource dataSource = new SQLiteDataSource();
 
-    public void createDatabase(String dbname) {
-        dbName = dbname;
+    public DBManager(String dbName) {
+        this.dbName = dbName;
+        createDatabase();
+        createTable();
+    }
+
+    public void createDatabase() {
         url = "jdbc:sqlite:" + dbName;
         dataSource.setUrl(url);
     }
@@ -32,7 +37,7 @@ public class DBConnector {
         }
     }
 
-    public String getUrl() {
-        return url;
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url);
     }
 }

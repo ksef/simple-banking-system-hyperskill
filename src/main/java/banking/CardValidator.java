@@ -1,6 +1,6 @@
 package banking;
 
-import banking.processing.Card;
+import banking.model.Card;
 
 public class CardValidator {
 
