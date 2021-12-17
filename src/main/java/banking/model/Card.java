@@ -5,9 +5,9 @@ public class Card {
     private String number;
     private String PIN;
 
-    public Card(String number, StringBuilder PIN) {
+    public Card(String number, String PIN) {
         this.number = number;
-        this.PIN = String.valueOf(PIN);
+        this.PIN = PIN;
     }
 
     public String getNumber() {

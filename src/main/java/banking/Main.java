@@ -11,9 +11,7 @@ public class Main {
             BankingSystem bankingSystem = new BankingSystem(accountDAO);
             bankingSystem.showMenu();
         } else {
-            throw new IllegalArgumentException("""
-                    Enter the "--fileName" and SQLite db name
-                    """);
+            throw new IllegalArgumentException("Enter the '-fileName' and SQLite db name");
         }
     }
 }

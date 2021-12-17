@@ -8,30 +8,35 @@ import java.sql.SQLException;
 
 public class DBManager {
 
-    private final static String CREATE_TABLE = """
+    private static final String CREATE_TABLE = """
             CREATE TABLE IF NOT EXISTS account
             (id INTEGER PRIMARY KEY, 
             number TEXT NOT NULL, 
             pin TEXT NOT NULL, 
             balance INTEGER DEFAULT 0)""";
+
     private String dbName;
     private String url;
-    private SQLiteDataSource dataSource = new SQLiteDataSource();
+    private final SQLiteDataSource dataSource;
 
     public DBManager(String dbName) {
+        dataSource = new SQLiteDataSource();
         this.dbName = dbName;
         createDatabase();
         createTable();
     }
 
     public void createDatabase() {
-        url = "jdbc:sqlite:" + dbName;
-        dataSource.setUrl(url);
+        if (dbName.contains(".s3db")) {
+            url = "jdbc:sqlite:" + dbName;
+            dataSource.setUrl(url);
+        }
     }
 
     public void createTable() {
-        try (PreparedStatement preparedStatement = DriverManager.getConnection(url).prepareStatement(CREATE_TABLE)) {
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(CREATE_TABLE)) {
             preparedStatement.executeUpdate();
+            getConnection().close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

@@ -12,7 +12,15 @@ public class Account {
         this.balance = balance;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public Card getCard() {
         return card;
+    }
+
+    public int getBalance() {
+        return balance;
     }
 }

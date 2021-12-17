@@ -2,6 +2,8 @@ package banking.dao;
 
 import banking.configuration.DBManager;
 import banking.model.Account;
+import banking.model.Card;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,15 +11,16 @@ import java.sql.Statement;
 
 public class AccountDAO {
 
-    private final static String INSERT_INTO = "INSERT INTO account (number, pin) VALUES (?, ?)";
+    private final static String INSERT_INTO_ACCOUNT = "INSERT INTO account (number, pin) VALUES (?, ?)";
     private final static String SELECT_CARD_NUMBER = "SELECT count(number) FROM account WHERE number = (?)";
     private final static String SELECT_ALL = "SELECT * FROM account";
-    private final static String SELECT_ID = "SELECT id FROM account WHERE number=? AND pin=?";
+    private final static String GET_VALID_CARD = "SELECT * FROM account WHERE number=? AND pin=?";
     private final static String GET_CARD = "SELECT * FROM account WHERE id = ?";
-    private final static String UPD_BALANCE = "UPDATE account SET balance = (balance + ?) WHERE id = ?";
+    private final static String UPDATE_BALANCE = "UPDATE account SET balance = (balance + ?) WHERE id = ?";
     private final static String GET_MONEY = "UPDATE account SET balance = (balance + ?) WHERE number = ?";
-    private final static String SEND_MONEY = "UPDATE account SET balance = (balance - ?) WHERE id = ?";
-    private final static String DEL_ACC = "DELETE FROM account WHERE id = ?";
+    private final static String SEND_MONEY = "UPDATE account SET balance = (balance - ?) WHERE number = ?";
+    private final static String DELETE_ACCOUNT = "DELETE FROM account WHERE id = ?";
+
     private DBManager dbManager;
 
     public AccountDAO(DBManager dbManager) {
@@ -25,11 +28,11 @@ public class AccountDAO {
     }
 
     public void insertCard(Account account) {
-        try (
-             PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(INSERT_INTO)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(INSERT_INTO_ACCOUNT   )) {
             preparedStatement.setString(1, account.getCard().getNumber());
             preparedStatement.setString(2, account.getCard().getPIN());
             preparedStatement.executeUpdate();
+            dbManager.getConnection().close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -37,13 +40,12 @@ public class AccountDAO {
 
     public int getId() {
         int id = 0;
-        try (
-             Statement stmt = dbManager.getConnection().createStatement()) {
-
-            ResultSet res = stmt.executeQuery(SELECT_ALL);
+        try (Statement statement = dbManager.getConnection().createStatement()) {
+            ResultSet res = statement.executeQuery(SELECT_ALL);
             while (res.next()) {
                 id = res.getInt("id");
             }
+            dbManager.getConnection().close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -51,34 +53,36 @@ public class AccountDAO {
     }
 
     public boolean containCard(String cardNumber) {
-        ResultSet res;
         try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(SELECT_CARD_NUMBER)) {
             preparedStatement.setString(1, cardNumber);
-            res = preparedStatement.executeQuery();
+            ResultSet res = preparedStatement.executeQuery();
             if (res.next()) {
                 return res.getBoolean(1);
             }
+            dbManager.getConnection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public int login(String cardNumber, String PIN) {
-        ResultSet res;
-        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(SELECT_ID)) {
+    public Account login(String cardNumber, String PIN) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_VALID_CARD)) {
             preparedStatement.setString(1, cardNumber);
             preparedStatement.setString(2, PIN);
-            res = preparedStatement.executeQuery();
+            ResultSet res = preparedStatement.executeQuery();
+            dbManager.getConnection().close();
             if (res.next()) {
-                return res.getInt("id");
-            } else {
-                return -1;
+                return new Account(
+                        res.getInt("id"),
+                        new Card(res.getString("number"), res.getString("pin")),
+                        res.getInt("balance")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1;
+        return null;
     }
 
     public int getBalance(int id) {
@@ -86,10 +90,10 @@ public class AccountDAO {
         try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_CARD)) {
             preparedStatement.setInt(1, id);
             ResultSet res = preparedStatement.executeQuery();
+            dbManager.getConnection().close();
             assert res != null;
             if (res.next()) {
                 balance = res.getInt("balance");
-                return balance;
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -102,10 +106,9 @@ public class AccountDAO {
         try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_CARD)) {
             preparedStatement.setInt(1, id);
             ResultSet res = preparedStatement.executeQuery();
-            assert res != null;
+            dbManager.getConnection().close();
             if (res.next()) {
                 number = res.getString("number");
-                return number;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -114,40 +117,32 @@ public class AccountDAO {
     }
 
     public void addBalance(int id, int amount) {
-        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(UPD_BALANCE)) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(UPDATE_BALANCE)) {
             preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, id);
             preparedStatement.executeUpdate();
+            dbManager.getConnection().close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
 
-    public void sendMoney(int id, int amountSend) {
-        try (PreparedStatement preparedStatement1 = dbManager.getConnection().prepareStatement(SEND_MONEY)) {
-            preparedStatement1.setInt(1, amountSend);
-            preparedStatement1.setInt(2, id);
-            preparedStatement1.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void getMoney(int amountSend, String card) {
+    public void updateMoney(int amountSend, String card) {
         try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(GET_MONEY)) {
             preparedStatement.setInt(1, amountSend);
             preparedStatement.setString(2, card);
             preparedStatement.executeUpdate();
+            dbManager.getConnection().close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
-    public void delAccount(int id) {
-        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(DEL_ACC)) {
+    public void deleteAccount(int id) {
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(DELETE_ACCOUNT)) {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
+            dbManager.getConnection().close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
