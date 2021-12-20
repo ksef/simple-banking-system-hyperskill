@@ -3,19 +3,20 @@ package banking;
 import banking.dao.AccountDAO;
 import banking.model.Account;
 import banking.model.Card;
+
 import java.util.Scanner;
+
 import static java.lang.System.exit;
 
 public class BankingSystem {
 
     private Account currentAccount;
     private int amountSend;
-    private int choose;
     private boolean isLogin;
-    private CardGenerator cardGenerator;
-    private CardValidator cardValidator;
-    private AccountDAO accountDAO;
-    private Scanner scanner;
+    private final CardGenerator cardGenerator;
+    private final CardValidator cardValidator;
+    private final AccountDAO accountDAO;
+    private final Scanner scanner;
 
     public BankingSystem(AccountDAO accountDAO) {
         cardGenerator = new CardGenerator();
@@ -24,7 +25,7 @@ public class BankingSystem {
         scanner = new Scanner(System.in);
     }
 
-    public void showMenu(){
+    public void showMenu() {
         while (true) {
             showMenuInfo();
             chooseMenu();
@@ -32,45 +33,41 @@ public class BankingSystem {
     }
 
     public void showMenuInfo() {
-            if (isLogin) {
-                System.out.println("""
-                1. Balance
-                2. Add income
-                3. Do transfer
-                4. Close account
-                5. Log out
-                0. Exit""");
-            } else {
-                System.out.println("""
-                1. Create an account
-                2. Log into account
-                0. Exit""");
-            }
+        if (isLogin) {
+            System.out.println("""
+                    1. Balance
+                    2. Add income
+                    3. Do transfer
+                    4. Close account
+                    5. Log out
+                    0. Exit""");
+        } else {
+            System.out.println("""
+                    1. Create an account
+                    2. Log into account
+                    0. Exit""");
+        }
     }
 
     public void chooseMenu() {
-            choose = scanner.nextInt();
-            if (isLogin) {
-                loggedMenu(choose);
-            } else {
-                registerMenu(choose);
-            }
+        int choice = scanner.nextInt();
+        if (isLogin) {
+            loggedMenu(choice);
+        } else {
+            registerMenu(choice);
+        }
     }
 
     private void registerMenu(int choose) {
         switch (choose) {
-            case 1:
-                createAccount();
-                break;
-            case 2:
-                logInOption();
-                break;
-            case 0:
+            case 1 -> createAccount();
+            case 2 -> logInOption();
+            case 0 -> {
+                scanner.close();
                 System.out.println("Bye!");
                 exit(0);
-            default:
-                System.out.println("Wrong number");
-                break;
+            }
+            default -> System.out.println("Wrong number");
         }
     }
 
@@ -96,6 +93,7 @@ public class BankingSystem {
             case 5:
                 break;
             case 0:
+                scanner.close();
                 System.out.println("Bye!");
                 exit(0);
             default:
@@ -162,7 +160,7 @@ public class BankingSystem {
     private void createAccount() {
         Card card = cardGenerator.generate();
         Account account = new Account(
-                accountDAO.getId() + 1,
+                +1,
                 card,
                 0);
         accountDAO.insertCard(account);

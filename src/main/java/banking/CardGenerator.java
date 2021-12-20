@@ -18,37 +18,37 @@ public class CardGenerator {
         return new Card(number, PIN);
     }
 
-    private String getNewCardNumber(){
+    private String getNewCardNumber() {
         String number = BINumber + getAccIdentifier();
         do {
             char checksum = getChecksumFor(number);
             number += checksum;
-        }while(!cardValidator.isValidCard(this, number));
+        } while (!cardValidator.isValidCard(this, number));
         return number;
     }
 
     private String getAccIdentifier() {
         StringBuilder pin = new StringBuilder();
-        for(int i = 0; i < 9; i++){
+        for (int i = 0; i < 9; i++) {
             pin.append((char) ((int) ((Math.random() * 10)) + '0'));
         }
         return pin.toString();
     }
 
-    private String getNewPin(){
+    private String getNewPin() {
         StringBuilder pin = new StringBuilder();
-        for(int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             pin.append((char) ((int) ((Math.random() * 10)) + '0'));
         }
         return pin.toString();
     }
 
-    public char getChecksumFor(String number){
+    public char getChecksumFor(String number) {
         int checksum = 0;
-        for(int i = 0; i < 15; i++){
+        for (int i = 0; i < 15; i++) {
             int num = number.charAt(i) - '0';
-            if(i % 2 == 0) num *= 2;
-            if(num > 9) num -= 9;
+            if (i % 2 == 0) num *= 2;
+            if (num > 9) num -= 9;
             checksum += num;
         }
         int charNum = 10 - (checksum % 10);

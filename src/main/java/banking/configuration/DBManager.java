@@ -1,6 +1,7 @@
 package banking.configuration;
 
 import org.sqlite.SQLiteDataSource;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,13 +10,13 @@ import java.sql.SQLException;
 public class DBManager {
 
     private static final String CREATE_TABLE = """
-            CREATE TABLE IF NOT EXISTS account
+            CREATE TABLE IF NOT EXISTS account 
             (id INTEGER PRIMARY KEY, 
             number TEXT NOT NULL, 
             pin TEXT NOT NULL, 
             balance INTEGER DEFAULT 0)""";
 
-    private String dbName;
+    private final String dbName;
     private String url;
     private final SQLiteDataSource dataSource;
 
@@ -26,17 +27,18 @@ public class DBManager {
         createTable();
     }
 
-    public void createDatabase() {
+    private void createDatabase() {
         if (dbName.contains(".s3db")) {
             url = "jdbc:sqlite:" + dbName;
             dataSource.setUrl(url);
+        } else {
+            throw new IllegalArgumentException("Wrong file extension: " + dbName);
         }
     }
 
-    public void createTable() {
-        try (PreparedStatement preparedStatement = getConnection().prepareStatement(CREATE_TABLE)) {
+    private void createTable() {
+        try (Connection connection = getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(CREATE_TABLE)) {
             preparedStatement.executeUpdate();
-            getConnection().close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

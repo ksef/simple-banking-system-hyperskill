@@ -15,11 +15,15 @@ repositories {
 }
 
 dependencies {
-    implementation group:'org.xerial', name:'sqlite-jdbc', version:'3.8.11.2'
+    implementation group:'org.xerial', name:'sqlite-jdbc', version:'3.36.0.3'
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
 
 test {
     useJUnitPlatform()
 }
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17

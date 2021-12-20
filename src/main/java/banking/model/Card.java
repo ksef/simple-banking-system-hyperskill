@@ -1,20 +1,14 @@
 package banking.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@AllArgsConstructor
+@Getter
+@Setter
 public class Card {
 
     private String number;
     private String PIN;
-
-    public Card(String number, String PIN) {
-        this.number = number;
-        this.PIN = PIN;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public String getPIN() {
-        return PIN;
-    }
 }
