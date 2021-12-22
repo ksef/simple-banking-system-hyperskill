@@ -25,11 +25,11 @@ public class AccountDAO {
         this.dbManager = dbManager;
     }
 
-    public void insertCard(Account account) {
+    public void insertCard(Card card) {
         try (Connection connection = dbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT)) {
-            preparedStatement.setString(1, account.getCard().getNumber());
-            preparedStatement.setString(2, account.getCard().getPIN());
+            preparedStatement.setString(1, card.getNumber());
+            preparedStatement.setString(2, card.getPIN());
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();

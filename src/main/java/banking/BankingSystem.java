@@ -113,7 +113,7 @@ public class BankingSystem {
     }
 
     private void checkValid(String card) {
-        if (cardValidator.isValidCard(this.cardGenerator, card)) {
+        if (cardValidator.isValidCard(cardGenerator.getChecksumFor(card), card)) {
             enterMoneyCount(card);
         } else {
             System.out.println("Probably you made a mistake in the card number. Please try again!");
@@ -159,17 +159,13 @@ public class BankingSystem {
 
     private void createAccount() {
         Card card = cardGenerator.generate();
-        Account account = new Account(
-                +1,
-                card,
-                0);
-        accountDAO.insertCard(account);
+        accountDAO.insertCard(card);
         System.out.printf("""
                 Your card has been created
                 Your card number:
                 %s
                 Your card PIN:
                 %s
-                %n""", account.getCard().getNumber(), account.getCard().getPIN());
+                %n""", card.getNumber(), card.getPIN());
     }
 }

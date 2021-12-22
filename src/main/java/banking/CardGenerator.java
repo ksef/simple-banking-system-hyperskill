@@ -23,7 +23,7 @@ public class CardGenerator {
         do {
             char checksum = getChecksumFor(number);
             number += checksum;
-        } while (!cardValidator.isValidCard(this, number));
+        } while (!cardValidator.isValidCard(getChecksumFor(number), number));
         return number;
     }
 
