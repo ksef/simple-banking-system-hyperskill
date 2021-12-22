@@ -14,9 +14,8 @@ public class AccountDAO {
     private static final String INSERT_INTO_ACCOUNT = "INSERT INTO account (number, pin) VALUES (?, ?)";
     private static final String SELECT_COUNT_NUMBER = "SELECT count(number) FROM account WHERE number = (?)";
     private static final String SELECT_ACCOUNT_WHERE_NUMBER_AND_PIN = "SELECT * FROM account WHERE number=? AND pin=?";
-    private static final String GET_ACCOUNT_WHERE_ID = "SELECT * FROM account WHERE id = ?";
-    private static final String UPDATE_BALANCE = "UPDATE account SET balance = (balance + ?) WHERE id = ?";
-    private static final String GET_MONEY = "UPDATE account SET balance = (balance + ?) WHERE number = ?";
+    private static final String GET_ACCOUNT_BY_ID = "SELECT * FROM account WHERE id = ?";
+    private static final String UPDATE_BALANCE = "UPDATE account SET balance = (balance + ?) WHERE number = ?";
     private static final String DELETE_ACCOUNT = "DELETE FROM account WHERE id = ?";
 
     private final DBManager dbManager;
@@ -72,7 +71,7 @@ public class AccountDAO {
     public int getBalance(int id) {
         int balance = -1;
         try (Connection connection = dbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(GET_ACCOUNT_WHERE_ID)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(GET_ACCOUNT_BY_ID)) {
             preparedStatement.setInt(1, id);
             ResultSet res = preparedStatement.executeQuery();
             if (res.next()) {
@@ -87,7 +86,7 @@ public class AccountDAO {
     public String getNumber(int id) {
         String number = "";
         try (Connection connection = dbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(GET_ACCOUNT_WHERE_ID)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(GET_ACCOUNT_BY_ID)) {
             preparedStatement.setInt(1, id);
             ResultSet res = preparedStatement.executeQuery();
             if (res.next()) {
@@ -99,20 +98,9 @@ public class AccountDAO {
         return number;
     }
 
-    public void addBalance(int id, int amount) {
-        try (Connection connection = dbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_BALANCE)) {
-            preparedStatement.setInt(1, amount);
-            preparedStatement.setInt(2, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public void updateMoney(int amountSend, String card) {
         try (Connection connection = dbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(GET_MONEY)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_BALANCE)) {
             preparedStatement.setInt(1, amountSend);
             preparedStatement.setString(2, card);
             preparedStatement.executeUpdate();

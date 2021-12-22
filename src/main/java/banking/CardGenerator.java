@@ -7,9 +7,9 @@ public class CardGenerator {
     private final String BINumber;
     private final CardValidator cardValidator;
 
-    public CardGenerator() {
+    public CardGenerator(CardValidator cardValidator) {
         this.BINumber = "400000";
-        cardValidator = new CardValidator();
+        this.cardValidator = cardValidator;
     }
 
     public Card generate() {
@@ -47,11 +47,19 @@ public class CardGenerator {
         int checksum = 0;
         for (int i = 0; i < 15; i++) {
             int num = number.charAt(i) - '0';
-            if (i % 2 == 0) num *= 2;
-            if (num > 9) num -= 9;
+            if (i % 2 == 0) {
+                num *= 2;
+            }
+            if (num > 9) {
+                num -= 9;
+            }
             checksum += num;
         }
         int charNum = 10 - (checksum % 10);
         return (char) (charNum + '0');
+    }
+
+    public CardValidator getCardValidator() {
+        return cardValidator;
     }
 }

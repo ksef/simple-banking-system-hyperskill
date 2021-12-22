@@ -37,7 +37,8 @@ public class DBManager {
     }
 
     private void createTable() {
-        try (Connection connection = getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(CREATE_TABLE)) {
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(CREATE_TABLE)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());

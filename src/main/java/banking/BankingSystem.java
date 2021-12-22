@@ -14,13 +14,11 @@ public class BankingSystem {
     private int amountSend;
     private boolean isLogin;
     private final CardGenerator cardGenerator;
-    private final CardValidator cardValidator;
     private final AccountDAO accountDAO;
     private final Scanner scanner;
 
     public BankingSystem(AccountDAO accountDAO) {
-        cardGenerator = new CardGenerator();
-        cardValidator = new CardValidator();
+        cardGenerator = new CardGenerator(new CardValidator());
         this.accountDAO = accountDAO;
         scanner = new Scanner(System.in);
     }
@@ -62,11 +60,7 @@ public class BankingSystem {
         switch (choose) {
             case 1 -> createAccount();
             case 2 -> logInOption();
-            case 0 -> {
-                scanner.close();
-                System.out.println("Bye!");
-                exit(0);
-            }
+            case 0 -> closeMenu();
             default -> System.out.println("Wrong number");
         }
     }
@@ -79,7 +73,7 @@ public class BankingSystem {
             case 2:
                 System.out.println("Enter income:");
                 int amount = scanner.nextInt();
-                accountDAO.addBalance(currentAccount.getId(), amount);
+                accountDAO.updateMoney(amount, currentAccount.getCard().getNumber());
                 break;
             case 3:
                 transferMoney();
@@ -93,9 +87,7 @@ public class BankingSystem {
             case 5:
                 break;
             case 0:
-                scanner.close();
-                System.out.println("Bye!");
-                exit(0);
+                closeMenu();
             default:
                 System.out.println("Wrong number");
                 break;
@@ -113,7 +105,7 @@ public class BankingSystem {
     }
 
     private void checkValid(String card) {
-        if (cardValidator.isValidCard(cardGenerator.getChecksumFor(card), card)) {
+        if (cardGenerator.getCardValidator().isValidCard(cardGenerator.getChecksumFor(card), card)) {
             enterMoneyCount(card);
         } else {
             System.out.println("Probably you made a mistake in the card number. Please try again!");
@@ -167,5 +159,11 @@ public class BankingSystem {
                 Your card PIN:
                 %s
                 %n""", card.getNumber(), card.getPIN());
+    }
+
+    private void closeMenu() {
+        scanner.close();
+        System.out.println("Bye!");
+        exit(0);
     }
 }
