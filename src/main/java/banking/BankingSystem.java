@@ -14,11 +14,13 @@ public class BankingSystem {
     private int amountSend;
     private boolean isLogin;
     private final CardGenerator cardGenerator;
+    private final CardValidator cardValidator;
     private final AccountDAO accountDAO;
     private final Scanner scanner;
 
     public BankingSystem(AccountDAO accountDAO) {
-        cardGenerator = new CardGenerator(new CardValidator());
+        cardValidator = new CardValidator();
+        cardGenerator = new CardGenerator(cardValidator);
         this.accountDAO = accountDAO;
         scanner = new Scanner(System.in);
     }
@@ -105,7 +107,7 @@ public class BankingSystem {
     }
 
     private void checkValid(String card) {
-        if (cardGenerator.getCardValidator().isValidCard(cardGenerator.getChecksumFor(card), card)) {
+        if (cardValidator.isValidCard(cardGenerator.getChecksumFor(card), card)) {
             enterMoneyCount(card);
         } else {
             System.out.println("Probably you made a mistake in the card number. Please try again!");

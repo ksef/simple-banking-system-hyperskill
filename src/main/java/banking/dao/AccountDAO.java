@@ -13,7 +13,7 @@ public class AccountDAO {
 
     private static final String INSERT_INTO_ACCOUNT = "INSERT INTO account (number, pin) VALUES (?, ?)";
     private static final String SELECT_COUNT_NUMBER = "SELECT count(number) FROM account WHERE number = (?)";
-    private static final String SELECT_ACCOUNT_WHERE_NUMBER_AND_PIN = "SELECT * FROM account WHERE number=? AND pin=?";
+    private static final String SELECT_ACCOUNT_BY_NUMBER_AND_PIN = "SELECT * FROM account WHERE number=? AND pin=?";
     private static final String GET_ACCOUNT_BY_ID = "SELECT * FROM account WHERE id = ?";
     private static final String UPDATE_BALANCE = "UPDATE account SET balance = (balance + ?) WHERE number = ?";
     private static final String DELETE_ACCOUNT = "DELETE FROM account WHERE id = ?";
@@ -51,7 +51,7 @@ public class AccountDAO {
 
     public Account login(String cardNumber, String PIN) {
         try (Connection connection = dbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_WHERE_NUMBER_AND_PIN)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_NUMBER_AND_PIN)) {
             preparedStatement.setString(1, cardNumber);
             preparedStatement.setString(2, PIN);
             ResultSet res = preparedStatement.executeQuery();

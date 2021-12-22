@@ -58,8 +58,4 @@ public class CardGenerator {
         int charNum = 10 - (checksum % 10);
         return (char) (charNum + '0');
     }
-
-    public CardValidator getCardValidator() {
-        return cardValidator;
-    }
 }
