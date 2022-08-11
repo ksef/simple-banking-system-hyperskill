@@ -18,11 +18,11 @@ public class BankingSystem {
     private final AccountDAO accountDAO;
     private final Scanner scanner;
 
-    public BankingSystem(AccountDAO accountDAO) {
-        cardValidator = new CardValidator();
-        cardGenerator = new CardGenerator(cardValidator);
+    public BankingSystem(AccountDAO accountDAO, CardValidator cardValidator, CardGenerator cardGenerator, Scanner scanner) {
+        this.cardValidator = cardValidator;
+        this.cardGenerator = cardGenerator;
         this.accountDAO = accountDAO;
-        scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
     public void showMenu() {
@@ -58,7 +58,7 @@ public class BankingSystem {
         }
     }
 
-    private void registerMenu(int choose) {
+    public void registerMenu(int choose) {
         switch (choose) {
             case 1 -> createAccount();
             case 2 -> logInOption();
@@ -67,7 +67,7 @@ public class BankingSystem {
         }
     }
 
-    private void loggedMenu(int choose) {
+    public void loggedMenu(int choose) {
         switch (choose) {
             case 1:
                 System.out.println("Balance: " + accountDAO.getBalance(currentAccount.getId()));
@@ -96,7 +96,7 @@ public class BankingSystem {
         }
     }
 
-    private void transferMoney() {
+    public void transferMoney() {
         System.out.println("Enter card number:");
         String card = scanner.next();
         if (!card.equals(accountDAO.getNumber(currentAccount.getId()))) {
@@ -134,7 +134,7 @@ public class BankingSystem {
         }
     }
 
-    private void logInOption() {
+    public void logInOption() {
         System.out.println("Enter your card number:");
         String number = scanner.next();
 
@@ -163,7 +163,7 @@ public class BankingSystem {
                 %n""", card.getNumber(), card.getPIN());
     }
 
-    private void closeMenu() {
+    public void closeMenu() {
         scanner.close();
         System.out.println("Bye!");
         exit(0);
