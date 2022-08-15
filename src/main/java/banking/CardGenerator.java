@@ -2,6 +2,9 @@ package banking;
 
 import banking.model.Card;
 
+/**
+ * Class for generating a Card objects with number and a PIN
+ */
 public class CardGenerator {
 
     private final String BINumber;
@@ -12,12 +15,22 @@ public class CardGenerator {
         this.cardValidator = cardValidator;
     }
 
+    /**
+     * Create a card number and PIN
+     *
+     * @return A Card object.
+     */
     public Card generate() {
         String number = getNewCardNumber();
         String PIN = getNewPin();
         return new Card(number, PIN);
     }
 
+    /**
+     * Creates card number by joining BINumber, account identifier and checksum
+     *
+     * @return a String value of card number
+     */
     private String getNewCardNumber() {
         String number = BINumber + getAccIdentifier();
         do {
@@ -27,6 +40,11 @@ public class CardGenerator {
         return number;
     }
 
+    /**
+     * Generates random numbers and converts into a String value of size that is passed as argument
+     *
+     * @return a String value with generated numbers
+     */
     private String getAccIdentifier() {
         StringBuilder pin = new StringBuilder();
         for (int i = 0; i < 9; i++) {
@@ -35,6 +53,11 @@ public class CardGenerator {
         return pin.toString();
     }
 
+    /**
+     * Creates a PIN code of the size defined in PIN_SIZE field
+     *
+     * @return a String value of PIN code
+     */
     private String getNewPin() {
         StringBuilder pin = new StringBuilder();
         for (int i = 0; i < 4; i++) {
@@ -43,6 +66,12 @@ public class CardGenerator {
         return pin.toString();
     }
 
+    /**
+     * Given a string of numbers, return the check digit using a Luhn algorithm.
+     *
+     * @param number The credit card number you want to use.
+     * @return The check sum.
+     */
     public char getChecksumFor(String number) {
         int checksum = 0;
         for (int i = 0; i < 15; i++) {

@@ -9,6 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * The class is responsible for managing the accounts in the database
+ */
 public class AccountDAO {
 
     private static final String INSERT_INTO_ACCOUNT = "INSERT INTO account (number, pin) VALUES (?, ?)";
@@ -35,6 +38,12 @@ public class AccountDAO {
         }
     }
 
+    /**
+     * Given a card number, checks for card availability
+     *
+     * @param cardNumber the card number of the account to get
+     * @return true or false, depending on the presence of the card in the database
+     */
     public boolean containCard(String cardNumber) {
         try (Connection connection = dbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_COUNT_NUMBER)) {
@@ -49,6 +58,13 @@ public class AccountDAO {
         return false;
     }
 
+    /**
+     * Given a card number and PIN, return the account with that card number and PIN
+     *
+     * @param cardNumber the card number of the account to get
+     * @param PIN        the PIN of the card
+     * @return An Account object or empty one if credentials does not match.
+     */
     public Account login(String cardNumber, String PIN) {
         try (Connection connection = dbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_NUMBER_AND_PIN)) {
@@ -68,6 +84,12 @@ public class AccountDAO {
         return null;
     }
 
+    /**
+     * Given account ID, return the account balance
+     *
+     * @param id account ID on which we want to check the balance
+     * @return account balance.
+     */
     public int getBalance(int id) {
         int balance = -1;
         try (Connection connection = dbManager.getConnection();
@@ -83,6 +105,12 @@ public class AccountDAO {
         return balance;
     }
 
+    /**
+     * Given account ID, return card number
+     *
+     * @param id account ID on which we want to check the balance
+     * @return card number.
+     */
     public String getNumber(int id) {
         String number = "";
         try (Connection connection = dbManager.getConnection();
@@ -98,6 +126,12 @@ public class AccountDAO {
         return number;
     }
 
+    /**
+     * Given the amount of money and card number, update the account balance
+     *
+     * @param amountSend amount of money to send
+     * @param card card number
+     */
     public void updateMoney(int amountSend, String card) {
         try (Connection connection = dbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_BALANCE)) {
@@ -109,6 +143,11 @@ public class AccountDAO {
         }
     }
 
+    /**
+     * Given an ID deletes the account
+     *
+     * @param id amount of money to send
+     */
     public void deleteAccount(int id) {
         try (Connection connection = dbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ACCOUNT)) {

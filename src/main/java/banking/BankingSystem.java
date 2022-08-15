@@ -8,6 +8,9 @@ import java.util.Scanner;
 
 import static java.lang.System.exit;
 
+/**
+ * The class represents a banking system
+ */
 public class BankingSystem {
 
     private Account currentAccount;
@@ -25,6 +28,9 @@ public class BankingSystem {
         this.scanner = scanner;
     }
 
+    /**
+     * Display the menu, get the user's choice, process the choice, and sync the account
+     */
     public void showMenu() {
         while (true) {
             showMenuInfo();
@@ -32,6 +38,9 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Outputs the menu to the console depending on is user logged in or not
+     */
     public void showMenuInfo() {
         if (isLogin) {
             System.out.println("""
@@ -49,6 +58,9 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Processes the passed input based on is user logged in or not
+     */
     public void chooseMenu() {
         int choice = scanner.nextInt();
         if (isLogin) {
@@ -58,6 +70,11 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Invokes a method related of which action had chosen the not logged user
+     *
+     * @param choose int value with user's choice
+     */
     public void registerMenu(int choose) {
         switch (choose) {
             case 1 -> createAccount();
@@ -67,6 +84,11 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Invokes a method related of which action had chosen the logged user
+     *
+     * @param choose int value with user's choice
+     */
     public void loggedMenu(int choose) {
         switch (choose) {
             case 1:
@@ -96,6 +118,9 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Makes the process of transferring money from one account to another
+     */
     public void transferMoney() {
         System.out.println("Enter card number:");
         String card = scanner.next();
@@ -106,6 +131,9 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Checks if the entered card matches
+     */
     private void checkValid(String card) {
         if (cardValidator.isValidCard(cardGenerator.getChecksumFor(card), card)) {
             enterMoneyCount(card);
@@ -114,6 +142,11 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Entering money for a transaction
+     *
+     * @param card Car number
+     */
     private void enterMoneyCount(String card) {
         if (accountDAO.containCard(card)) {
             System.out.println("Enter how much money you want to transfer:");
@@ -124,6 +157,11 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Create transaction with chosen card
+     *
+     * @param card Car number
+     */
     private void transaction(String card) {
         if (amountSend <= accountDAO.getBalance(currentAccount.getId())) {
             accountDAO.updateMoney(amountSend, card);
@@ -134,6 +172,9 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Makes the sign in process. User needs to enter its card number and PIN
+     */
     public void logInOption() {
         System.out.println("Enter your card number:");
         String number = scanner.next();
@@ -151,6 +192,9 @@ public class BankingSystem {
         }
     }
 
+    /**
+     * Creates the account and outputs its credentials to the console
+     */
     private void createAccount() {
         Card card = cardGenerator.generate();
         accountDAO.insertCard(card);
